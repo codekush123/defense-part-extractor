@@ -75,3 +75,7 @@ cd defense-part-extractor
 
 # Install dependencies
 pip install fastapi uvicorn streamlit segment-anything opencv-python torch shapely
+
+# Image Coordination
+To get the perfect coordinates of your image to be isolated, run the following file and click 4 points of the image to isolate.
+python src/coord_finder.py
