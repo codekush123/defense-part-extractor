@@ -1,45 +1,39 @@
+# src/processor.py
 import cv2
-import torch
 import numpy as np
 from segment_anything import sam_model_registry, SamPredictor
 
 class PartExtractor:
-    def __init__(self, checkpoint_path, model_type="vit_b", device="mps"):
-        self.device = device
-        # Load the SAM model weights
-        self.sam = sam_model_registry[model_type](checkpoint=checkpoint_path).to(device=self.device)
-        self.predictor = SamPredictor(self.sam)
+    def __init__(self, checkpoint_path, model_type="vit_b", device="cpu"):
+        sam = sam_model_registry[model_type](checkpoint=checkpoint_path)
+        sam.to(device=device)
+        self.predictor = SamPredictor(sam)
 
     def load_image(self, path):
-        img = cv2.imread(path)
-        if img is None: raise FileNotFoundError(f"Image not found at {path}")
-        return img
+        return cv2.imread(path)
 
-    def get_mask(self, image, point):
-        # 1. Convert BGR to RGB (Critical for SAM)
+    def get_mask(self, image, points):
         rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         self.predictor.set_image(rgb_image)
         
-        # 2. Convert point to numpy array
-        input_point = np.array([point])
-        input_label = np.array([1]) # 1 means 'Foreground'
+        input_points = np.array(points)
+        # We use '1' for all points to mark them as foreground
+        input_labels = np.ones(len(input_points))
 
-        # 3. Predict masks
-        # We set multimask_output=True to get 3 options, then pick the best
-        masks, scores, logits = self.predictor.predict(
-            point_coords=input_point,
-            point_labels=input_label,
-            multimask_output=True,
+        # IMPORTANT: SAM can return 3 masks. 
+        # Sometimes the 'best' mask (index 0) is empty if the point is tiny.
+        # We will pick the mask with the most 'True' pixels.
+        masks, scores, _ = self.predictor.predict(
+            point_coords=input_points,
+            point_labels=input_labels,
+            multimask_output=True, # Change to True to see all options
         )
         
-        # Pick the mask with the highest confidence score
-        return masks[np.argmax(scores)]
-    def enhance_image(self, image_crop):
-        # Convert to gray and apply CLAHE for high-contrast 2D lines
-        gray = cv2.cvtColor(image_crop, cv2.COLOR_BGR2GRAY)
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-        enhanced = clahe.apply(gray)
-        
-        # Apply Laplacian-style sharpening kernel
-        kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
-        return cv2.filter2D(enhanced, -1, kernel)
+        # Select the mask that actually contains data
+        mask_areas = [np.sum(m) for m in masks]
+        return masks[np.argmax(mask_areas)]
+
+    def enhance_image(self, image):
+        # Let's keep it simple: just a slight contrast boost
+        # Over-processing often ruins technical drawings
+        return cv2.normalize(image, None, 0, 255, cv2.NORM_MINMAX)

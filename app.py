@@ -1,39 +1,38 @@
+# app.py
+
 import streamlit as st
+import requests
 import cv2
 import numpy as np
-from src.processor import PartExtractor
 
-st.set_page_config(page_title="Defense Part Extractor", layout="wide")
-st.title("🛡️ Defense Part Extractor UI")
+st.title("🛡️ Defense Part Extractor")
 
-@st.cache_resource
-def get_extractor():
-    return PartExtractor("models/sam_vit_b_01ec64.pth")
-
-extractor = get_extractor()
-
-uploaded_file = st.file_uploader("Upload Drawing", type=["png", "jpg", "jpeg"])
+uploaded_file = st.file_uploader("Upload Drawing", type=['png', 'jpg'])
 
 if uploaded_file:
-    # Read image
+    # Display the image
     file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
     image = cv2.imdecode(file_bytes, 1)
-    
-    st.write("Clicking logic: For this demo, please use the API or enter coordinates below.")
-    # Note: For full click-interaction, 'streamlit-opencv-canvas' is required as discussed.
-    
-    x = st.number_input("X Coordinate", value=0)
-    y = st.number_input("Y Coordinate", value=0)
+    st.image(image, caption="Uploaded Drawing", use_container_width=True)
+
+    # Multi-point input
+    coords_input = st.text_input("Enter coordinates (x1,y1,x2,y2,x3,y3,x4,y4)", placeholder="e.g. 450,1200,480,1250,500,1190,460,1210")
 
     if st.button("Extract Part"):
-        with st.spinner("Processing..."):
-            mask = extractor.get_mask(image, [x, y])
-            isolated = np.ones_like(image) * 255
-            isolated[mask] = image[mask]
-            
-            # Crop & Enhance
-            coords = np.argwhere(mask)
-            y0, x0 = coords.min(axis=0), coords.max(axis=0)
-            final = extractor.enhance_image(isolated[y0[0]:x0[0], y0[1]:x0[1]])
-            
-            st.image(final, caption="Enhanced 2D Part")
+        if coords_input:
+            # Send to your API
+            response = requests.post(
+                f"http://127.0.0.1:8000/extract_multi/?filename={uploaded_file.name}&coords={coords_input}"
+            )
+
+            if response.status_code == 200:
+                result = response.json()
+                # Use .get() to avoid KeyError if the API returns something else
+                saved_path = result.get('saved_at')
+
+                if saved_path:
+                    st.success(f"Success! Saved at: {saved_path}")
+                    st.image(saved_path, caption="Extracted Part")
+                else:
+                    st.warning("Part extracted, but the API didn't provide a file path.")
+                    st.write("Full API Response:", result)
