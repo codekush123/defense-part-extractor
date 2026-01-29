@@ -1,9 +1,9 @@
 import os
 import cv2
 import numpy as np
+import torch
 from fastapi import FastAPI, HTTPException
-from src.processor import PartExtractor
-
+from processor import PartExtractor
 app = FastAPI(title="Defense Part Extractor API")
 
 # Configuration
