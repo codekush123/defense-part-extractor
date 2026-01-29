@@ -16,15 +16,24 @@ class PartExtractor:
         return img
 
     def get_mask(self, image, point):
-        # image should be BGR (OpenCV standard)
-        self.predictor.set_image(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-        masks, scores, _ = self.predictor.predict(
-            point_coords=np.array([point]),
-            point_labels=np.array([1]), 
-            multimask_output=True
-        )
-        return masks[np.argmax(scores)]
+        # 1. Convert BGR to RGB (Critical for SAM)
+        rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        self.predictor.set_image(rgb_image)
+        
+        # 2. Convert point to numpy array
+        input_point = np.array([point])
+        input_label = np.array([1]) # 1 means 'Foreground'
 
+        # 3. Predict masks
+        # We set multimask_output=True to get 3 options, then pick the best
+        masks, scores, logits = self.predictor.predict(
+            point_coords=input_point,
+            point_labels=input_label,
+            multimask_output=True,
+        )
+        
+        # Pick the mask with the highest confidence score
+        return masks[np.argmax(scores)]
     def enhance_image(self, image_crop):
         # Convert to gray and apply CLAHE for high-contrast 2D lines
         gray = cv2.cvtColor(image_crop, cv2.COLOR_BGR2GRAY)

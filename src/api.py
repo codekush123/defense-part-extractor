@@ -16,13 +16,13 @@ DEVICE = "mps" if torch.backends.mps.is_available() else "cpu"
 extractor = PartExtractor(checkpoint_path=MODEL_PATH, device=DEVICE)
 
 @app.post("/extract/")
-async def extract_part(filename: str, x: int, y: int):
+async def extract_part(filename: str, x: int, y: int, box_size: int = 50):
     input_path = os.path.join(RAW_DIR, filename)
     if not os.path.exists(input_path):
         raise HTTPException(status_code=404, detail="Raw image not found.")
 
     img = extractor.load_image(input_path)
-    mask = extractor.get_mask(img, [x, y])
+    mask = extractor.get_mask(img, [x, y], box_size=box_size)
     
     isolated = np.ones_like(img) * 255
     isolated[mask] = img[mask]
