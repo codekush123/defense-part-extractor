@@ -1,0 +1,11 @@
+# Ignore the large model weights
+models/*.pth
+
+# Ignore the data (don't push your raw drawings to GitHub)
+data/raw/
+data/processed/
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+.DS_Store
