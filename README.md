@@ -1,7 +1,7 @@
 # SelectAM: Technical Schematic Intelligence (TSI)
 ### *Bridging Legacy Defense Documentation & Additive Manufacturing*
 
-## 📋 Executive Summary
+## Executive Summary
 SelectAM’s **Technical Schematic Intelligence (TSI)** tool is a critical pre-processing engine designed to unlock legacy defense data for Additive Manufacturing (AM). This system automates the isolation and extraction of individual mechanical components from complex, 2D technical drawings. 
 
 By converting flat schematics into high-fidelity digital assets, we create the necessary foundation for future 2D-to-3D reconstruction pipelines, enabling the reproduction of obsolete parts through modern 3D printing technologies in Finland.
@@ -70,7 +70,7 @@ This tool is the foundational Phase 1 of the SelectAM Digital Pipeline:
 ### Installation
 ```bash
 # Clone the repository
-git clone [https://github.com/SelectAM/defense-part-extractor.git](https://github.com/SelectAM/defense-part-extractor.git)
+git clone [https://github.com/codekush123/defense-part-extractor.git](https://github.com/codekush123/defense-part-extractor.git)
 cd defense-part-extractor
 
 # Install dependencies

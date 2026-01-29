@@ -8,12 +8,6 @@ def pick_coordinate(image_path):
         print(f"Error: Could not find image at {image_path}")
         return
 
-    print("--- INSTRUCTIONS ---")
-    print("1. A window will open with your image.")
-    print("2. CLICK on the part you want to extract.")
-    print("3. The X and Y coordinates will print in this terminal.")
-    print("4. Press any key to close the window.")
-
     points = []
     def click_event(event, x, y, flags, params):
         if event == cv2.EVENT_LBUTTONDOWN:
@@ -24,7 +18,7 @@ def pick_coordinate(image_path):
             
             if len(points) == 4:
                 coord_str = ",".join([f"{p[0]},{p[1]}" for p in points])
-                print(f"\n✅ All 4 points collected!")
+                print(f"\nAll 4 points collected!")
                 print(f"Use this string for your API: {coord_str}")
     cv2.namedWindow("Picker", cv2.WINDOW_NORMAL)
     cv2.setMouseCallback("Picker", click_event)

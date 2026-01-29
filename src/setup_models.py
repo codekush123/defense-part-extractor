@@ -2,7 +2,6 @@ import os
 import urllib.request
 
 def download_model():
-    # We go up one level from src to find the models folder
     model_dir = "models"
     model_path = os.path.join(model_dir, "sam_vit_b_01ec64.pth")
     url = "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth"
@@ -11,11 +10,11 @@ def download_model():
         os.makedirs(model_dir)
 
     if not os.path.exists(model_path):
-        print("📥 Downloading SAM weights (375MB)... this may take a minute.")
+        print("Downloading SAM weights (375MB)... this may take a minute.")
         urllib.request.urlretrieve(url, model_path)
-        print("✅ Download complete!")
+        print("Download complete!")
     else:
-        print("✅ Model already exists in /models.")
+        print("Model already exists in /models.")
 
 if __name__ == "__main__":
     download_model()

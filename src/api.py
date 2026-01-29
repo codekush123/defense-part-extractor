@@ -15,7 +15,6 @@ DEVICE = "cpu"
 # Initialize processor
 extractor = PartExtractor(checkpoint_path=MODEL_PATH, device=DEVICE)
 
-# Inside src/api.py
 @app.post("/extract_multi/")
 async def extract_part_multi(filename: str, coords: str):
     # Parse points
@@ -25,16 +24,12 @@ async def extract_part_multi(filename: str, coords: str):
     input_path = os.path.join(RAW_DIR, filename)
     img = extractor.load_image(input_path)
     
-    # Get the AI Mask
     mask = extractor.get_mask(img, point_list)
     
-    # Create a pure white background
     final_output = np.ones_like(img) * 255
     
-    # ONLY copy the pixels the AI identified
     final_output[mask] = img[mask]
     
-    # Crop tightly to the object
     y_idx, x_idx = np.where(mask)
     if len(y_idx) > 0:
         y1, y2 = np.min(y_idx), np.max(y_idx)
