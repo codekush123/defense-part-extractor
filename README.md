@@ -79,3 +79,12 @@ pip install fastapi uvicorn streamlit segment-anything opencv-python torch shape
 # Image Coordination
 To get the perfect coordinates of your image to be isolated, run the following file and click 4 points of the image to isolate.
 python src/coord_finder.py
+```
+
+## Input
+
+![Multiple parts from 65.png](/data/raw/65.png)
+
+
+## Output
+![Extracted Part Number 4 from 65.png](/data/processed/extracted_65.png)
