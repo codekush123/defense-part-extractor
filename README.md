@@ -81,10 +81,3 @@ To get the perfect coordinates of your image to be isolated, run the following f
 python src/coord_finder.py
 ```
 
-## Input
-
-![Multiple parts from 65.png](/data/raw/65.png)
-
-
-## Output
-![Extracted Part Number 4 from 65.png](/data/processed/extracted_65.png)
